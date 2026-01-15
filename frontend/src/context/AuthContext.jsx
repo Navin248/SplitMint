@@ -1,47 +1,43 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect } from "react";
+import { api } from "../services/api";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [token, setToken] = useState(localStorage.getItem("token"));
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (token) {
-            // Ideally verify token with backend /me endpoint
-            // For now, decode or just assume valid until 401
-            // Let's fetch /me
-            fetch('http://localhost:4000/me', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-                .then(res => {
-                    if (res.ok) return res.json();
-                    throw new Error('Invalid token');
-                })
-                .then(data => {
-                    setUser({ id: data.userId }); // Backend /me returns userId
-                    setLoading(false);
-                })
-                .catch(() => {
-                    logout();
-                    setLoading(false);
-                });
-        } else {
-            setLoading(false);
-        }
+        const verifyUser = async () => {
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const res = await api.get("/me"); // 🔥 Axios + interceptor
+                setUser({ id: res.data.userId });
+            } catch (err) {
+                logout();
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        verifyUser();
     }, [token]);
 
     const login = (userData, authToken) => {
-        setUser(userData);
+        localStorage.setItem("token", authToken);
         setToken(authToken);
-        localStorage.setItem('token', authToken);
+        setUser(userData);
     };
 
     const logout = () => {
-        setUser(null);
+        localStorage.removeItem("token");
         setToken(null);
-        localStorage.removeItem('token');
+        setUser(null);
     };
 
     return (
