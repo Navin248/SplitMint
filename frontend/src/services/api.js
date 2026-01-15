@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:4000';
+const BASE_URL = 'https://splitmint-backend.onrender.com';
 
 export const api = {
     BASE_URL, // Export for direct usage if needed
