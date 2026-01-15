@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Clean Palette - Clarity First */
+  --primary-500: #6366F1; /* Indigo */
+  --primary-600: #4F46E5;
+  
+  /* Semantic Colors */
+  --success: #10B981;
+  --success-bg: #ECFDF5;
+  --danger: #EF4444;
+  --danger-bg: #FEF2F2;
+  --neutral-bg: #F3F4F6;
+  --surface: #FFFFFF;
+  
+  /* Text */
+  --text-main: #111827;
+  --text-muted: #6B7280;
+
+  --font-family: 'Inter', sans-serif;
+  
+  /* Structured Shadows */
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-hover: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--neutral-bg);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Layout Utilities --- */
+
+.container-max {
+  max-width: 64rem; /* max-w-5xl approx */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 1.5rem;
+}
+
+/* --- Component Classes --- */
+
+/* Clean Card - Source of Truth */
+.card-premium {
+  background: var(--surface);
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: var(--shadow-card);
+  overflow: hidden; /* Contains children */
+}
+
+.card-title {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background-color: var(--primary-600);
+  color: white;
+}
+.btn-primary:hover {
+  background-color: var(--primary-500);
+}
+
+.btn-secondary {
+  background-color: white;
+  border-color: #D1D5DB;
+  color: var(--text-main);
+}
+.btn-secondary:hover {
+  background-color: #F9FAFB;
+}
+
+/* Inputs */
+input, select, textarea {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.5rem;
+  background-color: white;
+  font-size: 0.875rem;
+  color: var(--text-main);
+  transition: border-color 0.15s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Helper Utilities */
+.text-green { color: var(--success); }
+.text-red { color: var(--danger); }
+.bg-green-light { background-color: var(--success-bg); }
+.bg-red-light { background-color: var(--danger-bg); }
+
+/* Compatibility with OLD classes (Keep until full migration or just override) */
+.shadow { box-shadow: var(--shadow-card); }
+.rounded { border-radius: 0.5rem; }
+.bg-white { background-color: var(--surface); }
+
+

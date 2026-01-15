@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  createdGroups Group[]  @relation("GroupCreator")
+}
+
+model Group {
+  id        String        @id @default(uuid())
+  name      String
+  createdBy String
+  creator   User          @relation("GroupCreator", fields: [createdBy], references: [id])
+  participants Participant[]
+  expenses     Expense[]
+  createdAt DateTime      @default(now())
+}
+
+model Participant {
+  id        String   @id @default(uuid())
+  name      String
+  color     String?
+  groupId   String
+  userId    String?
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  expensesPaid Expense[]
+  splits       ExpenseSplit[]
+  createdAt DateTime @default(now())
+}
+
+model Expense {
+  id                   String        @id @default(uuid())
+  groupId              String
+  payerParticipantId   String
+  amount               Decimal       @db.Decimal(10,2)
+  description          String
+  date                 DateTime
+  group                Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  payer                Participant   @relation(fields: [payerParticipantId], references: [id])
+  splits               ExpenseSplit[]
+  createdAt            DateTime      @default(now())
+}
+
+model ExpenseSplit {
+  id            String      @id @default(uuid())
+  expenseId     String
+  participantId String
+  amount        Decimal     @db.Decimal(10,2)
+  expense       Expense     @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  participant   Participant @relation(fields: [participantId], references: [id])
+}

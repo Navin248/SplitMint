@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  createdAt     DateTime @default(now())
+  createdGroups Group[]  @relation("GroupCreator")
+}
+
+model Group {
+  id           String        @id @default(uuid())
+  name         String
+  createdBy    String
+  creator      User          @relation("GroupCreator", fields: [createdBy], references: [id])
+  participants Participant[]
+  // expenses  Expense[] // Phase 3
+  createdAt    DateTime      @default(now())
+}
+
+model Participant {
+  id        String   @id @default(uuid())
+  name      String
+  color     String?
+  groupId   String
+  userId    String?
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
