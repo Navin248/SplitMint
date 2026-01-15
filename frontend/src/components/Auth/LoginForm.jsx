@@ -1,72 +1,27 @@
-import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { api } from '../../services/api';
-import { useNavigate, Link } from 'react-router-dom';
+import axios from "axios";
 
-export default function LoginForm() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const { login } = useAuth();
-    const navigate = useNavigate();
+export const api = axios.create({
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+});
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        try {
-            const data = await api.login({ email, password });
-            if (data.token) {
-                login(data.user, data.token);
-                navigate('/groups');
-            } else {
-                setError(data.message || 'Login failed');
-            }
-        } catch (err) {
-            setError('Network error');
-        }
-    };
+// 🔐 Attach token automatically
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
 
-    return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-                <div className="text-red-500 bg-red-50 p-3 rounded-lg text-sm flex items-center gap-2 border border-red-100">
-                    <span>⚠️</span> {error}
-                </div>
-            )}
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
 
-            <div>
-                <label className="block mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">Email Address</label>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="bg-gray-50 border-gray-100 focus:bg-white transition-all text-gray-800 font-medium"
-                    placeholder="you@example.com"
-                />
-            </div>
+    return config;
+});
 
-            <div className="mb-2">
-                <label className="block mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">Password</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="bg-gray-50 border-gray-100 focus:bg-white transition-all text-gray-800 font-medium"
-                    placeholder="••••••••"
-                />
-            </div>
+// Auth helpers (optional but clean)
+api.login = async ({ email, password }) => {
+    const res = await api.post("/auth/login", { email, password });
+    return res.data;
+};
 
-            <button type="submit" className="w-full btn btn-primary py-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
-                Sign In
-            </button>
-
-            <div className="text-center mt-6">
-                <p className="text-sm text-gray-400">
-                    New to SplitMint? <Link to="/register" className="text-indigo-600 font-bold hover:underline">Create Account</Link>
-                </p>
-            </div>
-        </form>
-    );
-}
+api.register = async (payload) => {
+    const res = await api.post("/auth/register", payload);
+    return res.data;
+};
