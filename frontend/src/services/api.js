@@ -59,4 +59,11 @@ export const api = {
     getSettlements: (token, groupId) => fetch(`${BASE_URL}/groups/${groupId}/settlements`, {
         headers: { 'Authorization': `Bearer ${token}` }
     }).then(res => res.json()),
+
+    getMe: (token) => fetch(`${BASE_URL}/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    }).then(res => {
+        if (!res.ok) throw new Error("Failed to fetch user");
+        return res.json();
+    }),
 };

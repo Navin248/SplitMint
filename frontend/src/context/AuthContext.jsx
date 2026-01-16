@@ -9,23 +9,30 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const verifyUser = async () => {
+        const verify = async () => {
             if (!token) {
                 setLoading(false);
                 return;
             }
 
             try {
-                const res = await api.get("/me"); // 🔥 Axios + interceptor
-                setUser({ id: res.data.userId });
+                const data = await api.getMe(token);
+                if (data.userId) {
+                    setUser({ id: data.userId });
+                } else {
+                    throw new Error("Invalid user data");
+                }
             } catch (err) {
-                logout();
+                console.error("Auth verification failed:", err);
+                localStorage.removeItem("token");
+                setToken(null);
+                setUser(null);
             } finally {
                 setLoading(false);
             }
         };
 
-        verifyUser();
+        verify();
     }, [token]);
 
     const login = (userData, authToken) => {
@@ -42,7 +49,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ user, token, login, logout, loading }}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };
