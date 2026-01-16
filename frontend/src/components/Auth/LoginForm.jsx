@@ -1,25 +1,91 @@
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { api } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
-    try {
-        const data = await api.login({ email, password });
+export function LoginForm() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
-        console.log("LOGIN RESPONSE:", data); // 🔍 debug
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
-        if (!data?.token) {
-            setError("Login failed: token missing");
-            return;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        try {
+            const data = await api.login({ email, password });
+
+            console.log("LOGIN RESPONSE:", data); // 🔍 debug
+
+            if (!data?.token) {
+                setError("Login failed: token missing");
+                return;
+            }
+
+            // ✅ Save token + user
+            login(data.user ?? { email }, data.token);
+
+            // ✅ Force redirect AFTER state update
+            navigate("/groups", { replace: true });
+
+        } catch (err) {
+            console.error(err);
+            setError("Login failed. Please try again.");
         }
+    };
 
-        // ✅ Save token + user
-        login(data.user ?? { email }, data.token);
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+                <div className="text-red-500 bg-red-50 p-3 rounded-lg text-sm border border-red-100">
+                    ⚠️ {error}
+                </div>
+            )}
 
-        // ✅ Force redirect AFTER state update
-        navigate("/groups", { replace: true });
+            <div>
+                <label className="block mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    Email Address
+                </label>
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2"
+                    placeholder="you@example.com"
+                />
+            </div>
 
-    } catch (err) {
-        console.error(err);
-        setError("Login failed. Please try again.");
-    }
-};
+            <div>
+                <label className="block mb-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                    Password
+                </label>
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2"
+                    placeholder="••••••••"
+                />
+            </div>
+
+            <button
+                type="submit"
+                className="w-full py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
+            >
+                Sign In
+            </button>
+
+            <p className="text-sm text-center text-gray-400 mt-4">
+                New to SplitMint?{" "}
+                <Link to="/register" className="text-indigo-600 font-semibold">
+                    Create Account
+                </Link>
+            </p>
+        </form>
+    );
+}
