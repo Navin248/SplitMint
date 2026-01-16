@@ -16,35 +16,37 @@ import { parseExpense } from "./controllers/aiController.js";
 const app = express();
 
 /* ======================================================
-   CORS CONFIGURATION (RAILWAY + PROD SAFE)
+   🔥 CORS CONFIG — RAILWAY + PROD + DEV (FINAL)
 ====================================================== */
 
 const allowedOrigins = [
     "https://frontend-production-d882.up.railway.app", // Railway frontend
-    "https://split-mint-eosin.vercel.app",              // Vercel (old)
+    "https://split-mint-eosin.vercel.app",              // Old Vercel (safe)
     "http://localhost:5173"                             // Local dev
 ];
 
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            // Allow server-to-server / Postman
-            if (!origin) return callback(null, true);
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow server-to-server / Postman / curl
+        if (!origin) return callback(null, true);
 
-            if (allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            }
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
 
-            return callback(new Error("Not allowed by CORS"));
-        },
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-        credentials: true
-    })
-);
+        console.error("❌ CORS blocked origin:", origin);
+        return callback(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+};
 
-// ✅ REQUIRED: handle preflight requests
-app.options("*", cors());
+/* 🔑 APPLY CORS FIRST */
+app.use(cors(corsOptions));
+
+/* 🔑 HANDLE PREFLIGHT *BEFORE* ROUTES */
+app.options("*", cors(corsOptions));
 
 /* ======================================================
    MIDDLEWARE
