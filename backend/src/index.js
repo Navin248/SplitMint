@@ -16,18 +16,19 @@ import { parseExpense } from "./controllers/aiController.js";
 const app = express();
 
 /* ======================================================
-   CORS CONFIGURATION (PRODUCTION SAFE)
+   CORS CONFIGURATION (RAILWAY + PROD SAFE)
 ====================================================== */
 
 const allowedOrigins = [
-    "https://split-mint-eosin.vercel.app", // PROD frontend (Vercel)
-    "http://localhost:5173"                // DEV frontend
+    "https://frontend-production-d882.up.railway.app", // Railway frontend
+    "https://split-mint-eosin.vercel.app",              // Vercel (old)
+    "http://localhost:5173"                             // Local dev
 ];
 
 app.use(
     cors({
         origin: function (origin, callback) {
-            // Allow requests with no origin (Postman, curl)
+            // Allow server-to-server / Postman
             if (!origin) return callback(null, true);
 
             if (allowedOrigins.includes(origin)) {
@@ -36,9 +37,14 @@ app.use(
 
             return callback(new Error("Not allowed by CORS"));
         },
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true
     })
 );
+
+// ✅ REQUIRED: handle preflight requests
+app.options("*", cors());
 
 /* ======================================================
    MIDDLEWARE
