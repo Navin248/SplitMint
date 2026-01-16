@@ -6,8 +6,12 @@ import GroupsPage from './pages/GroupsPage';
 import GroupDashboardPage from './pages/GroupDashboardPage';
 
 const PrivateRoute = ({ children }) => {
-  const { token } = useAuth();
-  return token ? children : <Navigate to="/login" />;
+  const { token, loading } = useAuth();
+
+  if (loading) return null;
+  if (!token) return <Navigate to="/login" />;
+
+  return children;
 };
 
 function App() {
@@ -18,17 +22,23 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          <Route path="/groups" element={
-            <PrivateRoute>
-              <GroupsPage />
-            </PrivateRoute>
-          } />
+          <Route
+            path="/groups"
+            element={
+              <PrivateRoute>
+                <GroupsPage />
+              </PrivateRoute>
+            }
+          />
 
-          <Route path="/groups/:groupId" element={
-            <PrivateRoute>
-              <GroupDashboardPage />
-            </PrivateRoute>
-          } />
+          <Route
+            path="/groups/:groupId"
+            element={
+              <PrivateRoute>
+                <GroupDashboardPage />
+              </PrivateRoute>
+            }
+          />
 
           <Route path="*" element={<Navigate to="/groups" />} />
         </Routes>
